@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery | Studio Stevie</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="gallery-body">
+
+  <!-- PAGE TITLE -->
+  <h1 class="gallery-title">Gallery</h1>
+
+  <!-- CATEGORY TABS -->
+  <div class="gallery-tabs">
+    <button class="tab-btn active" data-tab="portraits">Portraits</button>
+    <button class="tab-btn" data-tab="events">Events</button>
+  </div>
+
+  <!-- PORTRAITS SECTION -->
+  <div id="portraits" class="gallery-section active">
+    <div class="horizontal-scroll">
+      <!-- Auto-loaded by gallery.js -->
+    </div>
+  </div>
+
+  <!-- EVENTS SECTION -->
+  <div id="events" class="gallery-section">
+    <div class="horizontal-scroll">
+      <!-- Auto-loaded by gallery.js -->
+    </div>
+  </div>
+
+  <script src="gallery.js"></script>
+</body>
+</html>
