@@ -11,23 +11,21 @@ body {
 /* MAIN LAYOUT: LEFT + RIGHT */
 .layout {
   display: flex;
-  height: 100vh;
+  height: 100svh;            /* universal height */
+  min-height: 700px;         /* keeps hero tall on all monitors */
   width: 100%;
   position: relative;
 }
 
 /* LEFT HERO IMAGE */
-.left-hero {
-  width: 60%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
+.left-hero,
 .left-hero img {
-  width: 100%;
   height: 100%;
+  width: 100%;
+  max-height: 100%;
   object-fit: cover;
+  z-index: 1;
+  position:relative;
 }
 
 /* RIGHT SIDE FADE */
@@ -36,11 +34,14 @@ body {
   inset: 0;
   background: linear-gradient(
     to right,
-    rgba(0,0,0,0) 20%,
-    rgba(0,0,0,0.8) 80%,
+    rgba(0,0,0,0) 30%,      /* more visible fade */
+    rgba(0,0,0,0.75) 85%,
     rgba(0,0,0,1) 100%
   );
+  pointer-events: none;
+  z-index: 2;   /* lies ABOVE image */
 }
+
 
 /* RIGHT TEXT CONTENT */
 .right-content {
@@ -55,10 +56,10 @@ body {
 
 .right-content h1 {
   margin: 0;
-  font-size: 3rem;
+  font-size: clamp(4rem, 6vw, 6rem); /* prevents Windows scaling issues */
+  letter-spacing: 5px;
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
-  font-size: 6rem;
   letter-spacing: 5px;
 }
 
@@ -72,7 +73,7 @@ body {
 /* BOTTOM NAV */
 .bottom-nav {
   position: absolute;
-  bottom: 20px;
+  bottom: 3vh;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -82,8 +83,9 @@ body {
 
 .bottom-nav a {
   position: relative;
-  width: 320px;
-  height: 240px;
+  aspect-ratio: 4 / 3;
+  width: min(320px, 22vw);
+  height: auto;
   overflow: hidden;
   border-radius: 10px;
   text-decoration: none;
@@ -311,17 +313,37 @@ body {
   }
 }
 
-/* MOBILE LAYOUT */
-@media (max-width: 900px) {
-  .about-section,
-  .about-section.reverse {
-    flex-direction: column;
-    text-align: center;
-  }
+/* NAV BAR — DESKTOP */
+.top-nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between; /* title left, links right */
+  align-items: center;
+  padding: 5px 10px;
+  box-sizing: border-box;
+}
 
-  .about-image-wrapper {
-    max-width: 100%;
-  }
+.nav-left {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.nav-right {
+  display: flex;
+  gap: 30px; /* spacing between links */
+}
+
+.nav-right a {
+  color: white;
+  text-decoration: none; /* remove purple underline */
+  font-size: 1.2rem;
+  font-weight: 400;
+  transition: opacity 0.2s ease;
+}
+
+.nav-right a:hover {
+  opacity: 0.6;
 }
 
 /* CONTACT PAGE */
@@ -384,310 +406,155 @@ body {
   font-size: 1rem;
 }
 
-/* CONTACT FORM */
-.contact-form-container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: #111;
-  padding: 40px;
-  border-radius: 10px;
-  border: 1px solid #222;
-}
-
-.contact-form-container h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 1.8rem;
-}
-
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  padding: 14px;
-  border-radius: 6px;
-  border: none;
-  background: #222;
-  color: white;
-  font-size: 1rem;
-}
-
-.contact-form textarea {
-  height: 140px;
-  resize: none;
-}
-
-.contact-form button {
-  background: white;
-  color: black;
-  border: none;
-  padding: 14px;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.contact-form button:hover {
-  background: #ddd;
-}
-
 /* FADE-IN ANIMATION */
 .fade-in {
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInMove .8s ease-out forwards;
 }
-
-/* MOBILE */
+/****************************************
+   FINAL MOBILE LAYOUT (max-width: 900px)
+*****************************************/
 @media (max-width: 900px) {
+
+  /* ABOUT PAGE MOBILE FIX */
+  .about-section,
+  .about-section.reverse {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .about-image-wrapper {
+    max-width: 100%;
+  }
+
+  /* CONTACT PAGE (spacing only; rest stays desktop until later) */
   .contact-options {
     flex-direction: column;
     align-items: center;
+    gap: 25px;
+    width: 100%;
   }
 
   .contact-card {
-    width: 80%;
-  }
-}
-
-/* TOP NAV BAR */
-.top-nav {
-  width: 100%;
-  max-width: 100vw;        /* prevents clipping */
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 50;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
-  box-sizing: border-box; /* ensures padding doesn't expand width */
-}
-
-.nav-left {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: white;
-}
-
-.nav-right {
-  display: flex;
-  gap: 30px;
-  flex-wrap: nowrap;
-}
-
-.nav-right a {
-  white-space: nowrap;
-  color: white;
-  text-decoration: none;
-  font-size: 1rem;
-  opacity: 0.8;
-  transition: 0.2s ease;
-}
-
-
-.nav-right a:hover {
-  opacity: 1;
-  text-shadow: 0 0 6px white;
-}
-
-/**************************************
-   UNIVERSAL MOBILE FIXES — ALL PAGES
-**************************************/
-@media (max-width: 900px) {
-
-  /* ============================
-       GLOBAL FIXES
-  ============================ */
-  body {
-    padding: 0;
-    overflow-x: hidden;
+    width: 90%;
+    max-width: 360px;
+    margin: 0 auto;
+    text-align: center !important;
+    padding: 25px;
   }
 
-  /* Reduce text sizes globally */
-  h1 { font-size: 2.4rem !important; }
-  h2 { font-size: 1.6rem !important; }
-  p  { font-size: 1rem !important; }
-
-
-  /* ============================
-       TOP NAV BAR
-  ============================ */
+  /* -------------------------------
+     MOBILE NAV – TITLE + LINKS
+  --------------------------------*/
   .top-nav {
-    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 18px;
+    gap: 6px;
   }
 
-  .nav-left {
-    font-size: 1.2rem;
+  .top-nav .site-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-align: center;
+    color: white;
   }
 
-  .nav-right {
-    gap: 15px;
+  .top-nav .nav-links {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
   }
 
-  .nav-right a {
-    font-size: 0.9rem;
+  .top-nav .nav-links a {
+    color: white !important;
+    text-decoration: none !important;
+    font-size: 1.1rem;
   }
 
-
-  /* ============================
-       HOME PAGE LAYOUT
-  ============================ */
+  /* -------------------------------
+     MOBILE HOME HERO
+  --------------------------------*/
   .layout {
     flex-direction: column;
     height: auto;
   }
 
-  .left-hero {
-    width: 100%;
-    height: 60vh;
-  }
-
+  .left-hero,
   .left-hero img {
-    object-fit: cover;
-  }
-
-  /* Change fade from right→bottom */
-  .fade-overlay {
-    background: linear-gradient(
-      to bottom,
-      rgba(0,0,0,0) 15%,
-      rgba(0,0,0,0.7) 80%,
-      rgba(0,0,0,1)   100%
-    );
+    width: 100% !important;
+    height: auto !important;
   }
 
   .right-content {
     width: 100%;
     padding: 30px 20px;
     text-align: center;
-    padding-top: 20px;
   }
 
   .right-content h1 {
-    font-size: 3rem !important;
-    letter-spacing: 2px;
+    font-size: 2.7rem !important;
+    line-height: 1.1;
   }
 
-  /* Bottom nav becomes horizontal scroll */
+  /* TURN OFF DESKTOP FADE */
+  .bottom-light-fade {
+    display: none !important;
+  }
+
+  /* -------------------------------
+     MOBILE BUTTON GRID (2×2)
+  --------------------------------*/
   .bottom-nav {
-    position: relative;
-    bottom: auto;
-    left: 0;
-    transform: none;
+    position: relative !important;
+    bottom: unset !important;
+    left: unset !important;
+    transform: none !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
     width: 100%;
-    margin: 20px 0 40px;
+    max-width: 420px;
+    margin: 25px auto 40px auto;
     padding: 0 15px;
-    overflow-x: auto;
-    display: flex;
-    justify-content: flex-start;
-    gap: 15px;
   }
 
   .bottom-nav a {
-    width: 160px;
-    height: 115px;
-    flex-shrink: 0;
+    width: 100% !important;
+    height: 150px !important;
+    border-radius: 14px;
+  }
+
+  .bottom-nav img {
+    object-fit: cover;
+    object-position: center;
+    animation: none !important;
+    filter: brightness(60%);
   }
 
   .bottom-nav a span {
-    font-size: 1rem !important;
+    font-size: 1.4rem !important;
   }
 
-
-  /* ============================
-       ABOUT PAGE
-  ============================ */
-  .about-section,
-  .about-section.reverse {
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
-    padding: 0 10px;
-  }
-
-  .about-image-wrapper {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .about-text {
-    width: 100%;
-    padding: 0 10px;
-  }
-
-
-  /* ============================
-       GALLERY PAGE
-  ============================ */
-
-  /* Tabs wrap properly */
-  .gallery-tabs {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    padding: 0 10px;
-  }
-
-  .tab-btn {
-    width: auto;
-    padding: 10px 15px;
-    font-size: 1rem;
-  }
-
-  /* Horizontal scroll becomes easier to use */
+  /* -------------------------------
+     MOBILE GALLERY
+  --------------------------------*/
   .horizontal-scroll {
-    overflow-x: auto;
-    white-space: nowrap;
-    scroll-snap-type: x mandatory;
-    padding: 10px;
+    display: block !important;
+    overflow-x: visible !important;
+    padding: 0;
   }
 
   .horizontal-scroll img {
-    height: 180px;
-    width: auto;
-    margin-right: 12px;
-    scroll-snap-align: start;
-  }
-
-
-  /* ============================
-       CONTACT PAGE
-  ============================ */
-  .contact-options {
-    flex-direction: column;
-    gap: 20px;
-    padding: 0 20px;
-  }
-
-  .contact-card {
-    width: 100%;
-    padding: 20px;
-  }
-
-  .contact-form-container {
-    width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  .contact-form input,
-  .contact-form textarea {
-    font-size: 1rem;
-  }
-
-  .contact-form button {
-    font-size: 1rem;
-    padding: 12px;
+    width: 90%;
+    margin: 0 auto 20px auto;
+    height: auto;
+    display: block;
+    border-radius: 12px;
   }
 }
