@@ -2,7 +2,7 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: #FFF7F2;
+  background: linear-gradient#C9D3CC 100%;
   color: #363636;
 }
 
@@ -19,7 +19,7 @@ h1, h2 {
 .hero-header {
   text-align: center;
   padding: 60px 20px 40px; /* tightened top and bottom */
-  background: #C9D3CC;
+  background: linear-gradient(180deg, #E4F3FF 0%, #C9D3CC 100%);
 }
 
 .site-tagline {
@@ -51,7 +51,7 @@ h1, h2 {
   justify-content: center;
   gap: 18px;
   padding: 0 8% 40px; /* removed top padding */
-  background: #FFF7F2;
+  background: #C9D3CC;
 }
 
 .showcase img {
@@ -65,13 +65,13 @@ h1, h2 {
 
 /* WHAT I DO */
 .what-i-do {
-  background: linear-gradient(180deg, #FFE2D6 0%, #FFD6C8 100%);
+  background: linear-gradient(180deg, #E4F3FF 0%, #C9D3CC 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 40px;
   flex-wrap: wrap;
-  padding: 40px 8%; /* tighter section */
+  padding: 40px 8%;
 }
 
 .what-text {
@@ -87,13 +87,13 @@ h1, h2 {
 
 /* ABOUT ME */
 .about-me {
-  background: linear-gradient(180deg, #E4F3FF 0%, #D7EEFF 100%);
+  background: linear-gradient(180deg, #E4F3FF 0%, #C9D3CC 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 40px;
   flex-wrap: wrap;
-  padding: 40px 8%; /* reduced */
+  padding: 40px 8%;
 }
 
 .about-text {
@@ -125,7 +125,7 @@ h1, h2 {
 /* TESTIMONIALS */
 .testimonials {
   text-align: center;
-  background: linear-gradient(180deg, #FFF7F2 0%, #FFEDEA 100%);
+  background: linear-gradient(180deg, #E4F3FF 0%, #C9D3CC 100%);
   padding: 20px 8% 40px; /* much tighter */
 }
 
@@ -143,7 +143,7 @@ h1, h2 {
 .cta-contact {
   text-align: center;
   padding: 50px 8% 70px; /* reduced top, kept bottom strong */
-  background: linear-gradient(180deg, #FFD6C8 0%, #FFB8A8 100%);
+  background: linear-gradient(180deg, #E4F3FF 0%, #C9D3CC 100%);
 }
 
 .cta-contact h2 {
