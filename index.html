@@ -4,89 +4,52 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Studio Stevie</title>
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="hero-header">
-    <h1 class="site-title">Studio Stevie</h1>
-    <p class="site-tagline">Photography & Video</p>
+  <!-- HERO SPLIT LAYOUT -->
+  <div class="layout">
 
-    <nav class="main-nav">
-      <a href="#">Home</a>
-      <a href="#">Gallery</a>
-      <a href="#">Contact</a>
-    </nav>
-  </header>
-
-  <!-- SHOWCASE STRIP -->
-  <section class="showcase">
-    <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600" alt="">
-    <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600" alt="">
-    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=600" alt="">
-  </section>
-
-  <!-- WHAT I DO SECTION -->
-  <section class="what-i-do">
-    <div class="what-text">
-      <h2>What I Do</h2>
-      <p>This is a short placeholder description. Stevie will add her own text here later.</p>
-
-      <ul>
-        <li>Family Photography</li>
-        <li>Portrait Sessions</li>
-        <li>Bands & Artist Visuals</li>
-        <li>Social Media Video Content</li>
-      </ul>
+    <!-- LEFT HERO -->
+    <div class="left-hero">
+      <img src="assets/hero/hero.jpg" alt="Stevie Portrait">
+      <div class="fade-overlay"></div>
     </div>
 
-    <div class="what-photos">
-      <div class="what-photos-container">
-        <img id="what-photo" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800" alt="">
-      </div>
-    </div>
-  </section>
-
-  <!-- ABOUT ME SECTION -->
-  <section class="about-me">
-    <div class="about-photo-area">
-      <div class="about-photo-container">
-        <img id="about-photo" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800" alt="">
-      </div>
+    <!-- RIGHT TEXT -->
+    <div class="right-content">
+      <h1>Studio Stevie</h1>
+      <p>Photography & Visual Storytelling</p>
     </div>
 
-    <div class="about-text">
-      <h2>About Me</h2>
-      <p>Stevie will write her own about section here. This is placeholder text so she can visualize the layout and overall feel of the site.</p>
-    </div>
-  </section>
+  </div>
 
-  <!-- TESTIMONIALS -->
-  <section class="testimonials">
-    <h2>What Clients Say</h2>
-    <div class="testimonial-box">
-      <p id="testimonial-text"></p>
-    </div>
-  </section>
+  <div class="bottom-light-fade"></div>
 
-  <!-- FINAL CTA + CONTACT -->
-  <section class="cta-contact">
-    <h2>Ready to Book Your Session?</h2>
-    <p>Let’s capture something beautiful together.</p>
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <a href="#">
+      <img src="assets/nav/home.jpg" alt="Home">
+      <span>Home</span>
+    </a>
 
-    <a href="#" class="cta-btn">Contact Stevie</a>
+    <a href="#gallery">
+      <img src="assets/nav/gallery.jpg" alt="Gallery">
+      <span>Gallery</span>
+    </a>
 
-    <div class="social-icons">
-      <a href="#" class="social-link">Instagram</a>
-      <a href="#" class="social-link">TikTok</a>
-      <a href="#" class="social-link">Email</a>
-    </div>
-  </section>
+    <a href="#about">
+      <img src="assets/nav/about.jpg" alt="About">
+      <span>About</span>
+    </a>
+
+    <a href="#contact">
+      <img src="assets/nav/contact.jpg" alt="Contact">
+      <span>Contact</span>
+    </a>
+  </nav>
 
   <script src="script.js"></script>
 </body>

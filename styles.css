@@ -1,0 +1,155 @@
+/* RESET */
+body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  font-family: 'Montserrat', sans-serif;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* MAIN LAYOUT: LEFT + RIGHT */
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* LEFT HERO IMAGE */
+.left-hero {
+  width: 60%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.left-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* RIGHT SIDE FADE */
+.fade-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0,0,0,0) 20%,
+    rgba(0,0,0,0.8) 80%,
+    rgba(0,0,0,1) 100%
+  );
+}
+
+/* RIGHT TEXT CONTENT */
+.right-content {
+  width: 40%;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: left;
+  padding-top: 150px;
+}
+
+.right-content h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 6rem;
+  letter-spacing: 5px;
+}
+
+.right-content p {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-family: 'Montserrat', sans-serif;
+  opacity: 0.75;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 10;
+}
+
+.bottom-nav a {
+  position: relative;
+  width: 320px;
+  height: 240px;
+  overflow: hidden;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+}
+
+.bottom-nav img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  animation: navPan 12s ease-in-out infinite;
+  filter: brightness(60%);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* PAN ANIMATION */
+@keyframes navPan {
+  0% { object-position: top; }
+  50% { object-position: 0% 60%; }
+  100% { object-position: top; }
+}
+
+.bottom-nav a:hover img {
+  animation-play-state: paused;   /* freezes the pan */
+  transform: scale(1.08);         /* keeps your enlarge effect */
+  filter: brightness(100%);       /* keeps your highlight effect */
+}
+
+/* HOVER EFFECT */
+.bottom-nav a:hover img {
+  transform: scale(1.08);
+  filter: brightness(100%);
+}
+
+/* STOP ALL IMAGES WHEN ANY NAV IS HOVERED */
+.bottom-nav:hover img {
+  animation-play-state: paused;
+}
+
+/* LABEL */
+.bottom-nav a span {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px black;
+}
+
+/* LIGHT BOTTOM FADE (BEHIND BUTTONS) */
+.bottom-light-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45vh; /* adjust fade height */
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0%,        /* transparent */
+    rgba(255,255,255,0.20) 70%, /* soft light fade */
+    rgba(255,255,255,0.35) 100% /* strongest at bottom */
+  );
+
+  z-index: 5; /* BELOW nav (nav is z-index: auto = above default 0) */
+}
