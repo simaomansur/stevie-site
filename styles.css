@@ -5,18 +5,17 @@ body {
   background: black;
   font-family: 'Montserrat', sans-serif;
   color: white;
-  overflow-x: hidden;
+  overscroll-behavior: none;
+  height: 100%;        /* ensures body doesn't extend past viewport */
 }
 
 /* MAIN LAYOUT: LEFT + RIGHT */
 .layout {
   display: flex;
-  height: 100vh;            /* universal height */
-  max-height: 100vh;
-  min-height: 700px;         /* keeps hero tall on all monitors */
+  height: 100dvh;      /* correct modern viewport unit */
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: hidden;    /* keep anything from pushing layout down */
 }
 
 /* LEFT HERO IMAGE */
