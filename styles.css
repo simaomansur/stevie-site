@@ -11,10 +11,12 @@ body {
 /* MAIN LAYOUT: LEFT + RIGHT */
 .layout {
   display: flex;
-  height: 100svh;            /* universal height */
+  height: 100vh;            /* universal height */
+  max-height: 100vh;
   min-height: 700px;         /* keeps hero tall on all monitors */
   width: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 /* LEFT HERO IMAGE */
@@ -26,6 +28,7 @@ body {
   object-fit: cover;
   z-index: 1;
   position:relative;
+  overflow: hidden;
 }
 
 /* RIGHT SIDE FADE */
@@ -46,12 +49,12 @@ body {
 /* RIGHT TEXT CONTENT */
 .right-content {
   width: 40%;
-  padding: 60px;
+  padding: 60px 40px 40px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   text-align: left;
-  padding-top: 150px;
+  height: 100%;
 }
 
 .right-content h1 {
@@ -90,6 +93,7 @@ body {
   border-radius: 10px;
   text-decoration: none;
   color: white;
+  margin: 0;
 }
 
 .bottom-nav img {
@@ -145,6 +149,7 @@ body {
   width: 100%;
   height: 45vh; /* adjust fade height */
   pointer-events: none;
+  overflow: hidden;
 
   background: linear-gradient(
     to bottom,
@@ -412,6 +417,7 @@ body {
   transform: translateY(20px);
   animation: fadeInMove .8s ease-out forwards;
 }
+
 /****************************************
    FINAL MOBILE LAYOUT (max-width: 900px)
 *****************************************/
