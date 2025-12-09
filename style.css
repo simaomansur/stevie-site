@@ -19,7 +19,7 @@ h1, h2 {
 .hero-header {
   text-align: center;
   padding: 60px 20px 40px; /* tightened top and bottom */
-  background: #FFF7F2;
+  background: #C9D3CC;
 }
 
 .site-tagline {
@@ -175,7 +175,7 @@ h1, h2 {
 .social-icons {
   display: flex;
   justify-content: center;
-  gap: 22px; /* tighter spacing */
+  gap: 22px;
 }
 
 .social-link {
