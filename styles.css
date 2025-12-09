@@ -500,3 +500,194 @@ body {
   opacity: 1;
   text-shadow: 0 0 6px white;
 }
+
+/**************************************
+   UNIVERSAL MOBILE FIXES — ALL PAGES
+**************************************/
+@media (max-width: 900px) {
+
+  /* ============================
+       GLOBAL FIXES
+  ============================ */
+  body {
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Reduce text sizes globally */
+  h1 { font-size: 2.4rem !important; }
+  h2 { font-size: 1.6rem !important; }
+  p  { font-size: 1rem !important; }
+
+
+  /* ============================
+       TOP NAV BAR
+  ============================ */
+  .top-nav {
+    padding: 15px 20px;
+  }
+
+  .nav-left {
+    font-size: 1.2rem;
+  }
+
+  .nav-right {
+    gap: 15px;
+  }
+
+  .nav-right a {
+    font-size: 0.9rem;
+  }
+
+
+  /* ============================
+       HOME PAGE LAYOUT
+  ============================ */
+  .layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .left-hero {
+    width: 100%;
+    height: 60vh;
+  }
+
+  .left-hero img {
+    object-fit: cover;
+  }
+
+  /* Change fade from right→bottom */
+  .fade-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 15%,
+      rgba(0,0,0,0.7) 80%,
+      rgba(0,0,0,1)   100%
+    );
+  }
+
+  .right-content {
+    width: 100%;
+    padding: 30px 20px;
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  .right-content h1 {
+    font-size: 3rem !important;
+    letter-spacing: 2px;
+  }
+
+  /* Bottom nav becomes horizontal scroll */
+  .bottom-nav {
+    position: relative;
+    bottom: auto;
+    left: 0;
+    transform: none;
+    width: 100%;
+    margin: 20px 0 40px;
+    padding: 0 15px;
+    overflow-x: auto;
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+  }
+
+  .bottom-nav a {
+    width: 160px;
+    height: 115px;
+    flex-shrink: 0;
+  }
+
+  .bottom-nav a span {
+    font-size: 1rem !important;
+  }
+
+
+  /* ============================
+       ABOUT PAGE
+  ============================ */
+  .about-section,
+  .about-section.reverse {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    padding: 0 10px;
+  }
+
+  .about-image-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .about-text {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+
+  /* ============================
+       GALLERY PAGE
+  ============================ */
+
+  /* Tabs wrap properly */
+  .gallery-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  .tab-btn {
+    width: auto;
+    padding: 10px 15px;
+    font-size: 1rem;
+  }
+
+  /* Horizontal scroll becomes easier to use */
+  .horizontal-scroll {
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+    padding: 10px;
+  }
+
+  .horizontal-scroll img {
+    height: 180px;
+    width: auto;
+    margin-right: 12px;
+    scroll-snap-align: start;
+  }
+
+
+  /* ============================
+       CONTACT PAGE
+  ============================ */
+  .contact-options {
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+  }
+
+  .contact-card {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .contact-form-container {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 1rem;
+  }
+
+  .contact-form button {
+    font-size: 1rem;
+    padding: 12px;
+  }
+}
