@@ -5,51 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Studio Stevie</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
   <!-- HERO SPLIT LAYOUT -->
-  <div class="layout">
+  <div class="page">
+    <div class="layout">
 
-    <!-- LEFT HERO -->
-    <div class="left-hero">
-      <img src="assets/hero/hero.jpg" alt="Stevie Portrait">
-      <div class="fade-overlay"></div>
+      <!-- LEFT HERO -->
+      <div class="left-hero">
+        <img src="assets/hero/hero.jpg" alt="Stevie Portrait">
+        <div class="fade-overlay"></div>
+      </div>
+
+      <!-- RIGHT TEXT + GALLERY + NAV (all one column) -->
+      <div class="right-content">
+        <h1>Studio Stevie</h1>
+        <p>Photography & Visual Storytelling</p>
+
+        <!-- MINI GALLERY -->
+        <section class="mini-gallery" aria-label="Featured photos">
+          <div class="mg" data-mg>
+            <button class="mg__btn mg__btn--prev" data-prev>
+              <span class="arrow arrow--left"></span>
+            </button>
+
+            <div class="mg__viewport" data-viewport>
+              <div class="mg__track" data-track></div>
+            </div>
+
+            <button class="mg__btn mg__btn--next" data-next>
+              <span class="arrow arrow--right"></span>
+            </button>
+          </div>
+
+          <div class="mg__dots" data-dots aria-label="Gallery navigation"></div>
+        </section>
+      </div>
+
+      <!-- BOTTOM NAVIGATION (moved here) -->
+      <nav class="bottom-nav" aria-label="Primary">
+        <div class="bottom-nav__inner">
+          <a href="gallery.html"><span>Gallery</span></a>
+          <a href="about.html"><span>About</span></a>
+          <a href="contact.html"><span>Contact</span></a>
+        </div>
+      </nav>
+
+      <!-- Bottom fade (moved inside layout so absolute positioning works) -->
+      <div class="bottom-light-fade"></div>
     </div>
-
-    <!-- RIGHT TEXT -->
-    <div class="right-content">
-      <h1>Studio Stevie</h1>
-      <p>Photography & Visual Storytelling</p>
-    </div>
-
   </div>
-
-  <div class="bottom-light-fade"></div>
-
-  <!-- BOTTOM NAVIGATION -->
-  <nav class="bottom-nav">
-    <a href="#">
-      <img src="assets/nav/home.jpg" alt="Home">
-      <span>Home</span>
-    </a>
-
-    <a href="gallery.html">
-      <img src="assets/nav/gallery.jpg" alt="Gallery">
-      <span>Gallery</span>
-    </a>
-
-    <a href="about.html">
-      <img src="assets/nav/about.jpg" alt="About">
-      <span>About</span>
-    </a>
-
-    <a href="contact.html">
-      <img src="assets/nav/contact.jpg" alt="Contact">
-      <span>Contact</span>
-    </a>
-  </nav>
 
   <script src="script.js"></script>
 </body>
