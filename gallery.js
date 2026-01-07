@@ -2,13 +2,18 @@
 const categories = {
   portraits: {
     folder: "portraits",
-    prefix: "people",
-    count: 23
+    prefix: "portrait",
+    count: 9
   },
   events: {
     folder: "events",
     prefix: "events",
-    count: 13
+    count: 16
+  },
+  family: {
+    folder: "family",
+    prefix: "family",
+    count: 20
   }
 };
 
