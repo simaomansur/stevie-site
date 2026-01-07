@@ -200,7 +200,7 @@ body {
   height: clamp(360px, 44vh, 680px);
   border-radius: 22px;
   overflow: hidden;
-  background: rgba(255,255,255,0.04);
+  background: transparent;
   isolation: isolate;
   touch-action: pan-y;
   contain: paint;
