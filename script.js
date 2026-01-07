@@ -48,14 +48,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const TOTAL = SET * REPEAT;
     const CENTER_BASE = SET * Math.floor(REPEAT / 2);
 
-    let index = CENTER_BASE;          // active slide index in the repeated strip
+    let index = CENTER_BASE; // active slide index in the repeated strip
     let slideW = 0;
     let step = 0;
     let centerOffset = 0;
 
     // movement state (single source of truth)
-    let currentX = 0;                // current translateX (px)
-    let anim = null;                 // current Web Animation
+    let currentX = 0; // current translateX (px)
+    let anim = null; // current Web Animation
     let isAnimating = false;
     let pending = 0;
 
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const img = document.createElement("img");
           img.src = images[i].src;
           img.alt = images[i].alt || "";
-          img.loading = (r === Math.floor(REPEAT / 2) && i === 0) ? "eager" : "lazy";
+          img.loading = r === Math.floor(REPEAT / 2) && i === 0 ? "eager" : "lazy";
           img.decoding = "async";
           img.draggable = false;
 
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function xForIndex(i) {
-      return centerOffset - (i * step);
+      return centerOffset - i * step;
     }
 
     function cancelAnim() {
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!slideW || !step) return;
 
       const vpW = viewport.getBoundingClientRect().width;
-      centerOffset = (vpW / 2) - (slideW / 2);
+      centerOffset = vpW / 2 - slideW / 2;
 
       // snap to index in a controlled way
       cancelAnim();
@@ -240,8 +240,12 @@ document.addEventListener("DOMContentLoaded", () => {
       moveBy(d);
     }
 
-    function next() { requestMove(1); }
-    function prev() { requestMove(-1); }
+    function next() {
+      requestMove(1);
+    }
+    function prev() {
+      requestMove(-1);
+    }
 
     function jumpToReal(realIndex) {
       // reset to center copy + chosen real
@@ -256,9 +260,15 @@ document.addEventListener("DOMContentLoaded", () => {
       setDots();
     }
 
-    // ---- Buttons (no special preventDefault needed now, but safe)
-    prevBtn?.addEventListener("click", (e) => { e.preventDefault(); prev(); });
-    nextBtn?.addEventListener("click", (e) => { e.preventDefault(); next(); });
+    // ---- Buttons
+    prevBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      prev();
+    });
+    nextBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      next();
+    });
 
     // ---- Drag / swipe (viewport only, ignore buttons)
     viewport.addEventListener("pointerdown", (e) => {
@@ -309,35 +319,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
     requestAnimationFrame(measure);
 
-    // --- Trackpad / wheel support (two-finger scroll)
-    let wheelAccum = 0;
+    // --- Trackpad / wheel support (smooth + normalized)
+    let wheelTarget = 0; // where we want the “temporary drag” to be
+    let wheelPos = 0; // where we actually are (eased)
     let wheelRAF = 0;
+    let wheelSettleT = 0;
 
-    function wheelRender() {
+    // Normalize wheel deltas to pixels (deltaMode can be lines/pages)
+    function normalizeWheelPx(e) {
+      let dx = e.deltaX;
+      let dy = e.deltaY;
+
+      // deltaMode: 0=pixels, 1=lines, 2=pages
+      if (e.deltaMode === 1) {
+        const LINE = 16; // common approximation
+        dx *= LINE;
+        dy *= LINE;
+      } else if (e.deltaMode === 2) {
+        const PAGE = window.innerHeight;
+        dx *= PAGE;
+        dy *= PAGE;
+      }
+
+      // Clamp spikes (trackpad inertia bursts)
+      dx = Math.max(-240, Math.min(240, dx));
+      dy = Math.max(-240, Math.min(240, dy));
+
+      return { dx, dy };
+    }
+
+    function wheelTick() {
       wheelRAF = 0;
-      // behave like a “temporary drag” around the current active index
-      currentX = xForIndex(index) - wheelAccum;
+
+      // Ease toward target (lower = smoother, higher = snappier)
+      const EASE = 0.14;
+
+      wheelPos += (wheelTarget - wheelPos) * EASE;
+
+      // Apply “temporary drag” around active index
+      currentX = xForIndex(index) - wheelPos;
       applyTransform(currentX);
+
+      // Keep animating until settled
+      if (Math.abs(wheelTarget - wheelPos) > 0.25) {
+        wheelRAF = requestAnimationFrame(wheelTick);
+      }
     }
 
     function settleWheel() {
-      wheelAccum = 0;
-      animateToIndex(index);
+      // snap wheel offsets back to 0 smoothly, then animate to index
+      wheelTarget = 0;
+
+      if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
+
+      // give it a moment to settle visually
+      setTimeout(() => {
+        wheelPos = 0;
+        animateToIndex(index);
+      }, 110);
     }
 
     function onWheel(e) {
       // Ignore while actively dragging with pointer
       if (dragging) return;
 
-      const absX = Math.abs(e.deltaX);
-      const absY = Math.abs(e.deltaY);
+      const { dx, dy } = normalizeWheelPx(e);
+
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
 
       // Trackpads usually give deltaX for horizontal. Some users “horizontal scroll” via deltaY.
-      const isMostlyHorizontal = absX > absY;
-      const delta = isMostlyHorizontal ? e.deltaX : e.deltaY;
+      const isMostlyHorizontal = absX > absY * 1.15;
+      const delta = isMostlyHorizontal ? dx : dy;
 
       // If it’s basically a normal vertical scroll, don’t hijack the page.
-      if (!isMostlyHorizontal && absY > 0 && absX < 3) return;
+      if (!isMostlyHorizontal && absY > 0 && absX < 4) return;
 
       e.preventDefault();
 
@@ -345,33 +401,37 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelAnim();
       pending = 0;
 
-      wheelAccum += delta * 0.4;
+      // Sensitivity: smaller = less twitchy
+      const SENS = 0.55;
+
+      wheelTarget += delta * SENS;
 
       // render at most once per frame
-      if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelRender);
+      if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
 
       // When the user scrolls far enough, advance slides
-      const threshold = slideW * 0.90;
+      const threshold = Math.max(140, slideW * 0.85);
 
-      if (wheelAccum > threshold) {
-        wheelAccum -= threshold;
-        index += 1; // flipped
+      if (wheelTarget > threshold) {
+        wheelTarget -= threshold;
+        wheelPos = wheelTarget; // reduce rubberband feel
+        index += 1;
         setActiveClasses();
         setDots();
         animateToIndex(index);
-      } else if (wheelAccum < -threshold) {
-        wheelAccum += threshold;
-        index -= 1; // flipped
+      } else if (wheelTarget < -threshold) {
+        wheelTarget += threshold;
+        wheelPos = wheelTarget;
+        index -= 1;
         setActiveClasses();
         setDots();
         animateToIndex(index);
       }
 
-      clearTimeout(onWheel._t);
-      onWheel._t = setTimeout(settleWheel, 140);
+      clearTimeout(wheelSettleT);
+      wheelSettleT = setTimeout(settleWheel, 160);
     }
 
     viewport.addEventListener("wheel", onWheel, { passive: false });
-
   })();
 });
