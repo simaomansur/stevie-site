@@ -24,7 +24,7 @@ for (let cat in categories) {
 
   for (let i = 1; i <= count; i++) {
     const img = document.createElement("img");
-    img.src = `assets/${folder}/${prefix}${i}.jpg`;  // <-- FIXED PATH
+    img.src = `assets/${folder}/${prefix}${i}.jpg`;
     img.alt = `${cat} ${i}`;
     container.appendChild(img);
   }

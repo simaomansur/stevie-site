@@ -42,24 +42,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const prefersReduced = () =>
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // ---- Build a repeated strip so "infinite" feels real
     const SET = images.length;
     const REPEAT = 5;
     const TOTAL = SET * REPEAT;
     const CENTER_BASE = SET * Math.floor(REPEAT / 2);
 
-    let index = CENTER_BASE; // active slide index in the repeated strip
+    let index = CENTER_BASE;
     let slideW = 0;
     let step = 0;
     let centerOffset = 0;
 
-    // movement state (single source of truth)
-    let currentX = 0; // current translateX (px)
-    let anim = null; // current Web Animation
+    let currentX = 0;
+    let anim = null;
     let isAnimating = false;
     let pending = 0;
 
-    // drag state
     let dragging = false;
     let dragStartX = 0;
     let dragStartTranslate = 0;
@@ -86,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     buildSlides();
 
-    // ----- Dots (real set only)
+    // ----- Dots
     const dots = images.map((_, i) => {
       const b = document.createElement("button");
       b.className = "mg__dot" + (i === 0 ? " is-active" : "");
@@ -111,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function computeStep() {
       const slides = track.querySelectorAll(".mg__slide");
       if (slides.length < 2) return 0;
-      // layout-based, stable under transforms
       return slides[1].offsetLeft - slides[0].offsetLeft;
     }
 
@@ -142,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const vpW = viewport.getBoundingClientRect().width;
       centerOffset = vpW / 2 - slideW / 2;
 
-      // snap to index in a controlled way
       cancelAnim();
       currentX = xForIndex(index);
       applyTransform(currentX);
@@ -151,7 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
       setDots();
     }
 
-    // ---- Recentering without ANY visual change
     function recenterIfNeeded() {
       const buffer = SET * 3;
       if (index > buffer && index < TOTAL - buffer) return;
@@ -160,8 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const real = mod(oldIndex, SET);
       const newIndex = CENTER_BASE + real;
 
-      // shift currentX by exact multiple of step so the pixels stay identical
-      // (keep any tiny drift perfectly)
       currentX += (oldIndex - newIndex) * step;
       index = newIndex;
 
@@ -170,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setDots();
     }
 
-    // ---- Animation (reliable finish callback, even on spam)
+    // ---- Animation
     function animateToIndex(targetIndex) {
       const targetX = xForIndex(targetIndex);
 
@@ -188,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
       cancelAnim();
       isAnimating = true;
 
-      // start from currentX (never read computed styles)
       anim = track.animate(
         [
           { transform: `translate3d(${currentX}px, 0, 0)` },
@@ -199,11 +190,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       return anim.finished
         .then(() => {
-          // commit final state
           currentX = targetX;
           applyTransform(currentX);
         })
-        .catch(() => {}) // cancelled is fine
+        .catch(() => {})
         .finally(() => {
           if (anim) anim.cancel();
           anim = null;
@@ -211,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
           recenterIfNeeded();
 
-          // drain queued spam clicks
           if (pending !== 0) {
             const d = pending;
             pending = 0;
@@ -221,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function moveBy(delta) {
-      // clamp delta so you can't queue absurd leaps; keeps it feeling consistent
       const d = Math.max(-SET, Math.min(SET, delta));
       index += d;
 
@@ -248,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function jumpToReal(realIndex) {
-      // reset to center copy + chosen real
       cancelAnim();
       pending = 0;
 
@@ -270,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       next();
     });
 
-    // ---- Drag / swipe (viewport only, ignore buttons)
+    // ---- Drag / swipe
     viewport.addEventListener("pointerdown", (e) => {
       if (e.target.closest("button")) return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -319,20 +306,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     requestAnimationFrame(measure);
 
-    // --- Trackpad / wheel support (smooth + normalized)
-    let wheelTarget = 0; // where we want the “temporary drag” to be
-    let wheelPos = 0; // where we actually are (eased)
+    // --- Trackpad / wheel support
+    let wheelTarget = 0;
+    let wheelPos = 0;
     let wheelRAF = 0;
     let wheelSettleT = 0;
 
-    // Normalize wheel deltas to pixels (deltaMode can be lines/pages)
     function normalizeWheelPx(e) {
       let dx = e.deltaX;
       let dy = e.deltaY;
 
-      // deltaMode: 0=pixels, 1=lines, 2=pages
       if (e.deltaMode === 1) {
-        const LINE = 16; // common approximation
+        const LINE = 16;
         dx *= LINE;
         dy *= LINE;
       } else if (e.deltaMode === 2) {
@@ -341,7 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
         dy *= PAGE;
       }
 
-      // Clamp spikes (trackpad inertia bursts)
       dx = Math.max(-240, Math.min(240, dx));
       dy = Math.max(-240, Math.min(240, dy));
 
@@ -351,28 +335,23 @@ document.addEventListener("DOMContentLoaded", () => {
     function wheelTick() {
       wheelRAF = 0;
 
-      // Ease toward target (lower = smoother, higher = snappier)
       const EASE = 0.14;
 
       wheelPos += (wheelTarget - wheelPos) * EASE;
 
-      // Apply “temporary drag” around active index
       currentX = xForIndex(index) - wheelPos;
       applyTransform(currentX);
 
-      // Keep animating until settled
       if (Math.abs(wheelTarget - wheelPos) > 0.25) {
         wheelRAF = requestAnimationFrame(wheelTick);
       }
     }
 
     function settleWheel() {
-      // snap wheel offsets back to 0 smoothly, then animate to index
       wheelTarget = 0;
 
       if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
 
-      // give it a moment to settle visually
       setTimeout(() => {
         wheelPos = 0;
         animateToIndex(index);
@@ -380,7 +359,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onWheel(e) {
-      // Ignore while actively dragging with pointer
       if (dragging) return;
 
       const { dx, dy } = normalizeWheelPx(e);
@@ -388,33 +366,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const absX = Math.abs(dx);
       const absY = Math.abs(dy);
 
-      // Trackpads usually give deltaX for horizontal. Some users “horizontal scroll” via deltaY.
       const isMostlyHorizontal = absX > absY * 1.15;
       const delta = isMostlyHorizontal ? dx : dy;
 
-      // If it’s basically a normal vertical scroll, don’t hijack the page.
       if (!isMostlyHorizontal && absY > 0 && absX < 4) return;
 
       e.preventDefault();
 
-      // stop any running animation so wheel feels immediate
       cancelAnim();
       pending = 0;
 
-      // Sensitivity: smaller = less twitchy
       const SENS = 0.55;
 
       wheelTarget += delta * SENS;
 
-      // render at most once per frame
       if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
 
-      // When the user scrolls far enough, advance slides
       const threshold = Math.max(140, slideW * 0.85);
 
       if (wheelTarget > threshold) {
         wheelTarget -= threshold;
-        wheelPos = wheelTarget; // reduce rubberband feel
+        wheelPos = wheelTarget;
         index += 1;
         setActiveClasses();
         setDots();
