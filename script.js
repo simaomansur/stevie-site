@@ -11,10 +11,20 @@ document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
     const images = [
-      { src: "assets/nav/about.jpg", alt: "About" },
-      { src: "assets/nav/gallery.jpg", alt: "Gallery" },
-      { src: "assets/nav/contact.jpg", alt: "Contact" },
-      { src: "assets/nav/home.jpg", alt: "Home" },
+      { src: "assets/nav/1.jpg", alt: "About" },
+      { src: "assets/nav/2.jpg", alt: "About" },
+      { src: "assets/nav/3.jpg", alt: "About" },
+      { src: "assets/nav/4.jpg", alt: "About" },
+      { src: "assets/nav/5.jpg", alt: "About" },
+      { src: "assets/nav/6.jpg", alt: "About" },
+      { src: "assets/nav/7.jpg", alt: "About" },
+      { src: "assets/nav/8.jpg", alt: "About" },
+      { src: "assets/nav/9.jpg", alt: "About" },
+      { src: "assets/nav/10.jpg", alt: "About" },
+      { src: "assets/nav/11.jpg", alt: "About" },
+      { src: "assets/nav/12.jpg", alt: "About" },
+      { src: "assets/nav/13.jpg", alt: "About" },
+      { src: "assets/nav/14.jpg", alt: "About" },
     ];
 
     const root = document.querySelector("[data-mg]");
@@ -34,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---- Build a repeated strip so "infinite" feels real
     const SET = images.length;
-    const REPEAT = 11;               // must be odd
+    const REPEAT = 5;
     const TOTAL = SET * REPEAT;
     const CENTER_BASE = SET * Math.floor(REPEAT / 2);
 
