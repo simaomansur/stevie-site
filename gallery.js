@@ -1,4 +1,9 @@
 // CATEGORY LOADER CONFIGURATION
+// FOR STEVIE!!!!! Change the number here to match the number of pictures in the folders!
+// WHEN YOU DOWNLOAD THE IMAGES CD TO THE FOLDER WHERE THEY ARE LOCATED THEN USE COMMAND UNDERNEATH
+// in terminal:
+// cd "folder name" until you get to images ex: cd desktop then cd images
+// sips -Z 2000 *.jpg
 const categories = {
   portraits: {
     folder: "portraits",
