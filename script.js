@@ -2,8 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   document.body.classList.add("page-loaded");
 
-  const navImgs = document.querySelectorAll(".nav-item img");
-  navImgs.forEach((img) => {
+  document.querySelectorAll(".nav-item img").forEach((img) => {
     img.style.transition = "transform 0.35s ease, filter 0.35s ease";
   });
 
@@ -44,16 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const SET = images.length;
     const REPEAT = 5;
-    const TOTAL = SET * REPEAT;
     const CENTER_BASE = SET * Math.floor(REPEAT / 2);
 
     let index = CENTER_BASE;
     let slideW = 0;
     let step = 0;
-    let centerOffset = 0;
+    let baseCenterOffset = 0;
+    let biasX = 0;
 
     let currentX = 0;
-    let anim = null;
     let isAnimating = false;
     let pending = 0;
 
@@ -95,9 +93,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function setActiveClasses() {
-      const slides = Array.from(track.children);
-      slides.forEach((s) => s.classList.remove("is-active"));
-      if (slides[index]) slides[index].classList.add("is-active");
+      const slides = track.children;
+      const len = slides.length;
+      const real = mod(index, SET);
+      const target = CENTER_BASE + real;
+
+      for (let k = 0; k < len; k++) slides[k].classList.remove("is-active");
+      if (slides[target]) slides[target].classList.add("is-active");
+    }
+
+    function setActiveForIndex(i) {
+      const slides = track.children;
+      const len = slides.length;
+      if (!Number.isFinite(i) || len === 0) return;
+
+      const clamped = Math.max(0, Math.min(len - 1, i));
+
+      for (let k = 0; k < len; k++) slides[k].classList.remove("is-active");
+      slides[clamped].classList.add("is-active");
     }
 
     function setDots() {
@@ -105,10 +118,23 @@ document.addEventListener("DOMContentLoaded", () => {
       dots.forEach((d, i) => d.classList.toggle("is-active", i === real));
     }
 
+    // live dot update during wheel scroll
+    function setDotsWheel(wheelPos) {
+      if (!step) return;
+      const visual = index + Math.round(wheelPos / step);
+      const real = mod(visual, SET);
+      dots.forEach((d, i) => d.classList.toggle("is-active", i === real));
+    }
+
     function computeStep() {
       const slides = track.querySelectorAll(".mg__slide");
       if (slides.length < 2) return 0;
-      return slides[1].offsetLeft - slides[0].offsetLeft;
+
+      const a = slides[0].getBoundingClientRect();
+      const b = slides[1].getBoundingClientRect();
+      const stepPx = b.left - a.left;
+
+      return Number.isFinite(stepPx) ? stepPx : 0;
     }
 
     function applyTransform(x) {
@@ -116,15 +142,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function xForIndex(i) {
-      return centerOffset - i * step;
+      return baseCenterOffset + biasX - i * step;
     }
 
     function cancelAnim() {
-      if (anim) {
-        anim.cancel();
-        anim = null;
-      }
       isAnimating = false;
+    }
+
+    function setTrackTransition(enabled) {
+      track.style.transition = enabled
+        ? "transform 520ms cubic-bezier(.2,.8,.2,1)"
+        : "none";
+    }
+
+    function normalizeBias() {
+      if (!step || !Number.isFinite(step)) return;
+
+      const period = SET * step;
+      if (!Number.isFinite(period) || period === 0) return;
+
+      const k = Math.round(biasX / period);
+      if (k === 0) return;
+
+      biasX -= k * period;
+      currentX += k * period;
+
+      setTrackTransition(false);
+      applyTransform(currentX);
+      setTrackTransition(true);
+    }
+
+    function clampIndexToMiddle() {
+      const real = mod(index, SET);
+      const newIndex = CENTER_BASE + real;
+      if (newIndex !== index) index = newIndex;
     }
 
     function measure() {
@@ -136,77 +187,65 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!slideW || !step) return;
 
       const vpW = viewport.getBoundingClientRect().width;
-      centerOffset = vpW / 2 - slideW / 2;
+      baseCenterOffset = vpW / 2 - slideW / 2;
 
+      normalizeBias();
       cancelAnim();
+
+      setTrackTransition(false);
       currentX = xForIndex(index);
       applyTransform(currentX);
+      setTrackTransition(true);
 
       setActiveClasses();
       setDots();
     }
 
-    function recenterIfNeeded() {
-      const buffer = SET * 3;
-      if (index > buffer && index < TOTAL - buffer) return;
-
-      const oldIndex = index;
-      const real = mod(oldIndex, SET);
-      const newIndex = CENTER_BASE + real;
-
-      currentX += (oldIndex - newIndex) * step;
-      index = newIndex;
-
-      applyTransform(currentX);
-      setActiveClasses();
-      setDots();
-    }
-
-    // ---- Animation
-    function animateToIndex(targetIndex) {
+    function animateToIndex(targetIndex, { doRebase = true } = {}) {
       const targetX = xForIndex(targetIndex);
 
+      cancelAnim();
+
       if (prefersReduced()) {
-        cancelAnim();
+        setTrackTransition(false);
         index = targetIndex;
         currentX = targetX;
         applyTransform(currentX);
         setActiveClasses();
         setDots();
-        recenterIfNeeded();
+        clampIndexToMiddle();
+        setActiveForIndex(index);
         return Promise.resolve();
       }
 
-      cancelAnim();
       isAnimating = true;
+      setTrackTransition(true);
 
-      anim = track.animate(
-        [
-          { transform: `translate3d(${currentX}px, 0, 0)` },
-          { transform: `translate3d(${targetX}px, 0, 0)` },
-        ],
-        { duration: 520, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
-      );
+      index = targetIndex;
+      currentX = targetX;
+      applyTransform(currentX);
 
-      return anim.finished
-        .then(() => {
-          currentX = targetX;
-          applyTransform(currentX);
-        })
-        .catch(() => {})
-        .finally(() => {
-          if (anim) anim.cancel();
-          anim = null;
+      setActiveForIndex(index);
+
+      return new Promise((resolve) => {
+        const onEnd = (e) => {
+          if (e.propertyName !== "transform") return;
+          track.removeEventListener("transitionend", onEnd);
           isAnimating = false;
 
-          recenterIfNeeded();
+          if (doRebase) clampIndexToMiddle();
+
+          setDots();
 
           if (pending !== 0) {
             const d = pending;
             pending = 0;
             moveBy(d);
           }
-        });
+          resolve();
+        };
+        track.addEventListener("transitionend", onEnd);
+      });
     }
 
     function moveBy(delta) {
@@ -228,13 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
       moveBy(d);
     }
 
-    function next() {
-      requestMove(1);
-    }
-    function prev() {
-      requestMove(-1);
-    }
-
     function jumpToReal(realIndex) {
       cancelAnim();
       pending = 0;
@@ -247,14 +279,14 @@ document.addEventListener("DOMContentLoaded", () => {
       setDots();
     }
 
-    // ---- Buttons
     prevBtn?.addEventListener("click", (e) => {
       e.preventDefault();
-      prev();
+      requestMove(-1);
     });
+
     nextBtn?.addEventListener("click", (e) => {
       e.preventDefault();
-      next();
+      requestMove(1);
     });
 
     // ---- Drag / swipe
@@ -268,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dragging = true;
       dragStartX = e.clientX;
       dragStartTranslate = currentX;
+      setTrackTransition(false);
 
       viewport.setPointerCapture(e.pointerId);
       e.preventDefault();
@@ -295,15 +328,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setActiveClasses();
       setDots();
+      setTrackTransition(true);
 
       animateToIndex(index);
       e.preventDefault();
     });
 
-    // ---- Resize
-    const ro = new ResizeObserver(() => measure());
-    ro.observe(viewport);
+    viewport.addEventListener("pointercancel", () => {
+      if (!dragging) return;
+      dragging = false;
+      setTrackTransition(true);
+      animateToIndex(index);
+    });
 
+    viewport.addEventListener("lostpointercapture", () => {
+      if (!dragging) return;
+      dragging = false;
+      setTrackTransition(true);
+      animateToIndex(index);
+    });
+
+    // ---- Resize
+    const ro = new ResizeObserver(measure);
+    ro.observe(viewport);
     requestAnimationFrame(measure);
 
     // --- Trackpad / wheel support
@@ -312,18 +359,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let wheelRAF = 0;
     let wheelSettleT = 0;
 
+    const WHEEL_EASE = 0.14;
+    const WHEEL_SENS = 0.55;
+
     function normalizeWheelPx(e) {
       let dx = e.deltaX;
       let dy = e.deltaY;
 
       if (e.deltaMode === 1) {
-        const LINE = 16;
-        dx *= LINE;
-        dy *= LINE;
+        dx *= 16;
+        dy *= 16;
       } else if (e.deltaMode === 2) {
-        const PAGE = window.innerHeight;
-        dx *= PAGE;
-        dy *= PAGE;
+        dx *= window.innerHeight;
+        dy *= window.innerHeight;
       }
 
       dx = Math.max(-240, Math.min(240, dx));
@@ -335,12 +383,21 @@ document.addEventListener("DOMContentLoaded", () => {
     function wheelTick() {
       wheelRAF = 0;
 
-      const EASE = 0.14;
+      wheelPos += (wheelTarget - wheelPos) * WHEEL_EASE;
+      if (!step || !Number.isFinite(step)) return;
 
-      wheelPos += (wheelTarget - wheelPos) * EASE;
+      const shift = Math.trunc(wheelPos / step);
+      if (shift !== 0) {
+        index += shift;
+        wheelPos -= shift * step;
+        wheelTarget -= shift * step;
+      }
 
-      currentX = xForIndex(index) - wheelPos;
+      currentX = baseCenterOffset - index * step - wheelPos;
       applyTransform(currentX);
+
+      setActiveForIndex(index);
+      setDotsWheel(wheelPos);
 
       if (Math.abs(wheelTarget - wheelPos) > 0.25) {
         wheelRAF = requestAnimationFrame(wheelTick);
@@ -348,17 +405,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function settleWheel() {
+      if (wheelRAF) {
+        cancelAnimationFrame(wheelRAF);
+        wheelRAF = 0;
+      }
+
+      const move = Math.round(wheelPos / step);
+
       wheelTarget = 0;
+      wheelPos = 0;
 
-      if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
+      if (move !== 0) index += move;
 
-      setTimeout(() => {
-        wheelPos = 0;
-        animateToIndex(index);
-      }, 110);
+      animateToIndex(index, { doRebase: true });
     }
 
     function onWheel(e) {
+      setTrackTransition(false);
       if (dragging) return;
 
       const { dx, dy } = normalizeWheelPx(e);
@@ -370,35 +433,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const delta = isMostlyHorizontal ? dx : dy;
 
       if (!isMostlyHorizontal && absY > 0 && absX < 4) return;
+      if (!step || !Number.isFinite(step)) return;
 
       e.preventDefault();
 
       cancelAnim();
       pending = 0;
 
-      const SENS = 0.55;
-
-      wheelTarget += delta * SENS;
+      wheelTarget += delta * WHEEL_SENS;
 
       if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
-
-      const threshold = Math.max(140, slideW * 0.85);
-
-      if (wheelTarget > threshold) {
-        wheelTarget -= threshold;
-        wheelPos = wheelTarget;
-        index += 1;
-        setActiveClasses();
-        setDots();
-        animateToIndex(index);
-      } else if (wheelTarget < -threshold) {
-        wheelTarget += threshold;
-        wheelPos = wheelTarget;
-        index -= 1;
-        setActiveClasses();
-        setDots();
-        animateToIndex(index);
-      }
 
       clearTimeout(wheelSettleT);
       wheelSettleT = setTimeout(settleWheel, 160);
