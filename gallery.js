@@ -8,7 +8,7 @@ const categories = {
   portraits: {
     folder: "portraits",
     prefix: "portrait",
-    count: 10
+    count: 17
   },
   events: {
     folder: "events",
