@@ -121,6 +121,47 @@ body {
   );
 }
 
+/* HOME — Brand row (logo | divider | tagline) */
+.brand{
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 0;
+}
+
+/* logo link */
+.brand__logo{
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* logo image */
+.brand__logo img{
+  display: block;
+  height: clamp(120px, 12vw, 240px);
+  width: auto;
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.65));
+}
+
+/* vertical divider */
+.brand__divider{
+  width: 1px;
+  height: clamp(60px, 8vw, 100px);
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  flex: 0 0 1px;
+}
+
+/* tagline */
+.brand__tagline{
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+}
+
 /* RIGHT CONTENT */
 .right-content {
   grid-column: 2;
@@ -511,7 +552,7 @@ body {
 .gallery-body {
   background: #000;
   color: #fff;
-  padding: 40px;
+  padding: 16px;
   font-family: "Montserrat", sans-serif;
 }
 
@@ -592,7 +633,7 @@ body {
   background: #000;
   color: #fff;
   font-family: "Montserrat", sans-serif;
-  padding: 40px;
+  padding: 16px;
 }
 
 .about-title {
@@ -670,20 +711,35 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 5px 10px;
+  align-items: flex-start;
+  padding: 14px 16px 0;
   box-sizing: border-box;
 }
 
-.nav-left {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #fff;
+.nav-left-logo {
+  display: inline-flex;
+  align-items: flex-start;
+  text-decoration: none;
+  margin-top: 0;
+  line-height: 0;
+  padding: 0;
+}
+
+.nav-left-logo img {
+  display: block;
+  height: 100px;
+  width: auto;
+  transition: transform 0.2s ease;
+}
+
+.nav-left-logo:hover img {
+  transform: scale(1.04);
 }
 
 .nav-right {
   display: flex;
   gap: 30px;
+  margin-top: 6px;
 }
 
 .nav-right a {
@@ -705,7 +761,7 @@ body {
   background: #000;
   color: #fff;
   font-family: "Montserrat", sans-serif;
-  padding: 40px;
+  padding: 16px;
 }
 
 .contact-title {
@@ -780,6 +836,25 @@ body {
 
     height: 56svh;
     min-height: 360px;
+  }
+
+  .brand{
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .brand__logo img{
+    height: clamp(100px, 12vw, 200px);
+  }
+
+  .brand__divider{
+    height: 34px;
+  }
+
+  .brand__tagline{
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-align: left;
   }
 
   /* Content below hero */

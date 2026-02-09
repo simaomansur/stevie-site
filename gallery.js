@@ -19,13 +19,20 @@ const categories = {
     folder: "family",
     prefix: "family",
     count: 20
+  },
+  boudoir: {
+    folder: "boudoir",
+    prefix: "boudoir",
+    count: 0
   }
 };
 
-// AUTO-LOAD IMAGES
+// AUTO-LOAD IMAGES (with safety net)
 for (let cat in categories) {
   const { folder, prefix, count } = categories[cat];
+
   const container = document.querySelector(`#${cat} .horizontal-scroll`);
+  if (!container) continue;
 
   for (let i = 1; i <= count; i++) {
     const img = document.createElement("img");
@@ -35,17 +42,33 @@ for (let cat in categories) {
   }
 }
 
-// TAB SWITCHING
+// TAB SWITCHING (+ boudoir content warning)
 const tabs = document.querySelectorAll(".tab-btn");
 const sections = document.querySelectorAll(".gallery-section");
 
+function activateTab(tab) {
+  tabs.forEach(t => t.classList.remove("active"));
+  sections.forEach(s => s.classList.remove("active"));
+
+  tab.classList.add("active");
+  const target = document.getElementById(tab.dataset.tab);
+  if (target) target.classList.add("active");
+}
+
 tabs.forEach(tab => {
   tab.addEventListener("click", () => {
-    tabs.forEach(t => t.classList.remove("active"));
-    sections.forEach(s => s.classList.remove("active"));
+    const isBoudoir = tab.dataset.tab === "boudoir";
 
-    tab.classList.add("active");
-    const target = document.getElementById(tab.dataset.tab);
-    target.classList.add("active");
+    if (isBoudoir && !sessionStorage.getItem("boudoir_ok")) {
+      const ok = window.confirm(
+        "Content warning: This section contains sexual content / boudoir photography. Continue?"
+      );
+
+      if (!ok) return;
+
+      sessionStorage.setItem("boudoir_ok", "1");
+    }
+
+    activateTab(tab);
   });
 });
