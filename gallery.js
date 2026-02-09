@@ -18,7 +18,7 @@ const categories = {
   family: {
     folder: "family",
     prefix: "family",
-    count: 20
+    count: 21
   },
   boudoir: {
     folder: "boudoir",
