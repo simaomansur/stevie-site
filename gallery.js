@@ -72,3 +72,46 @@ tabs.forEach(tab => {
     activateTab(tab);
   });
 });
+
+// Make mouse wheel scroll horizontal galleries (and allow click-drag)
+document.querySelectorAll(".horizontal-scroll").forEach((row) => {
+  // Wheel: vertical wheel -> horizontal scroll
+  row.addEventListener(
+    "wheel",
+    (e) => {
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+
+      // If user is already doing horizontal wheel, let it happen normally
+      if (absX > absY) return;
+
+      e.preventDefault();
+      row.scrollLeft += e.deltaY;
+    },
+    { passive: false }
+  );
+
+  // Click + drag
+  let down = false;
+  let startX = 0;
+  let startLeft = 0;
+
+  row.addEventListener("mousedown", (e) => {
+    if (e.button !== 0) return;
+    down = true;
+    startX = e.clientX;
+    startLeft = row.scrollLeft;
+    row.classList.add("is-dragging");
+    e.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!down) return;
+    row.scrollLeft = startLeft - (e.clientX - startX);
+  });
+
+  window.addEventListener("mouseup", () => {
+    down = false;
+    row.classList.remove("is-dragging");
+  });
+});

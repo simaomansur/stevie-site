@@ -552,7 +552,7 @@ body {
 .gallery-body {
   background: #000;
   color: #fff;
-  padding: 16px;
+  padding: 10px;
   font-family: "Montserrat", sans-serif;
 }
 
@@ -603,7 +603,10 @@ body {
   overflow-x: auto;
   padding-bottom: 20px;
   scroll-behavior: smooth;
+  cursor: grab;
 }
+
+.horizontal-scroll.is-dragging { cursor: grabbing; }
 
 .horizontal-scroll::-webkit-scrollbar {
   height: 8px;
@@ -633,7 +636,7 @@ body {
   background: #000;
   color: #fff;
   font-family: "Montserrat", sans-serif;
-  padding: 16px;
+  padding: 10px;
 }
 
 .about-title {
@@ -761,7 +764,7 @@ body {
   background: #000;
   color: #fff;
   font-family: "Montserrat", sans-serif;
-  padding: 16px;
+  padding: 10px;
 }
 
 .contact-title {
@@ -972,6 +975,24 @@ body {
   }
 
   /* Gallery page: turn horizontal into vertical */
+  .gallery-tabs{
+    display: flex;
+    gap: 10px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;            /* key */
+    overscroll-behavior-x: contain; /* key */
+    padding: 8px 2px 12px;
+  }
+
+  .tab-btn{
+    flex: 0 0 auto;
+  }
+
   .horizontal-scroll {
     display: block !important;
     overflow-x: visible !important;
