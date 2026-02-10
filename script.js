@@ -359,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let wheelRAF = 0;
     let wheelSettleT = 0;
 
-    const WHEEL_EASE = 0.14;
+    const WHEEL_EASE = 0.18;
     const WHEEL_SENS = 0.55;
 
     function normalizeWheelPx(e) {
@@ -445,7 +445,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
 
       clearTimeout(wheelSettleT);
-      wheelSettleT = setTimeout(settleWheel, 160);
+      wheelSettleT = setTimeout(settleWheel, 200);
     }
 
     viewport.addEventListener("wheel", onWheel, { passive: false });
