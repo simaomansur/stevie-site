@@ -23,7 +23,7 @@ const categories = {
   boudoir: {
     folder: "boudoir",
     prefix: "boudoir",
-    count: 0
+    count: 15
   }
 };
 
