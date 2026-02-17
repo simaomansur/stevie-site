@@ -1,453 +1,312 @@
 // script.js
 document.addEventListener("DOMContentLoaded", () => {
-  document.body.classList.add("page-loaded");
+  const root = document.querySelector("[data-mg]");
+  if (!root) return;
 
-  document.querySelectorAll(".nav-item img").forEach((img) => {
-    img.style.transition = "transform 0.35s ease, filter 0.35s ease";
+  const viewport = root.querySelector("[data-viewport]");
+  const track = root.querySelector("[data-track]");
+  const prevBtn = root.querySelector("[data-prev]");
+  const nextBtn = root.querySelector("[data-next]");
+  const dotsWrap = root.closest(".mini-gallery")?.querySelector("[data-dots]");
+
+  if (!viewport || !track) return;
+
+  const images = [
+    { src: "assets/nav/1.jpg", alt: "About" },
+    { src: "assets/nav/2.jpg", alt: "About" },
+    { src: "assets/nav/3.jpg", alt: "About" },
+    { src: "assets/nav/4.jpg", alt: "About" },
+    { src: "assets/nav/5.jpg", alt: "About" },
+    { src: "assets/nav/6.jpg", alt: "About" },
+    { src: "assets/nav/7.jpg", alt: "About" },
+    { src: "assets/nav/8.jpg", alt: "About" },
+    { src: "assets/nav/9.jpg", alt: "About" },
+    { src: "assets/nav/10.jpg", alt: "About" },
+    { src: "assets/nav/11.jpg", alt: "About" },
+    { src: "assets/nav/12.jpg", alt: "About" },
+    { src: "assets/nav/13.jpg", alt: "About" },
+    { src: "assets/nav/14.jpg", alt: "About" },
+  ];
+
+  const SET = images.length;
+
+  // How many clones on each side.
+  // With 3 visible on desktop, 3 is a good buffer.
+  const BUFFER = 5;
+
+  const mod = (n, m) => ((n % m) + m) % m;
+
+  function buildSlide(imgObj) {
+    const slide = document.createElement("div");
+    slide.className = "mg__slide";
+
+    const img = document.createElement("img");
+    img.src = imgObj.src;
+    img.alt = imgObj.alt || "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.draggable = false;
+
+    slide.appendChild(img);
+    return slide;
+  }
+
+  // ---- build: [last BUFFER clones] + [real SET] + [first BUFFER clones]
+  track.innerHTML = "";
+
+  const leftClones = [];
+  for (let i = SET - BUFFER; i < SET; i++) leftClones.push(images[mod(i, SET)]);
+  leftClones.forEach((img) => track.appendChild(buildSlide(img)));
+
+  images.forEach((img, i) => {
+    const s = buildSlide(img);
+    if (i === 0) s.querySelector("img").loading = "eager";
+    track.appendChild(s);
   });
 
-  (() => {
-    "use strict";
+  const rightClones = [];
+  for (let i = 0; i < BUFFER; i++) rightClones.push(images[i]);
+  rightClones.forEach((img) => track.appendChild(buildSlide(img)));
 
-    const images = [
-      { src: "assets/nav/1.jpg", alt: "About" },
-      { src: "assets/nav/2.jpg", alt: "About" },
-      { src: "assets/nav/3.jpg", alt: "About" },
-      { src: "assets/nav/4.jpg", alt: "About" },
-      { src: "assets/nav/5.jpg", alt: "About" },
-      { src: "assets/nav/6.jpg", alt: "About" },
-      { src: "assets/nav/7.jpg", alt: "About" },
-      { src: "assets/nav/8.jpg", alt: "About" },
-      { src: "assets/nav/9.jpg", alt: "About" },
-      { src: "assets/nav/10.jpg", alt: "About" },
-      { src: "assets/nav/11.jpg", alt: "About" },
-      { src: "assets/nav/12.jpg", alt: "About" },
-      { src: "assets/nav/13.jpg", alt: "About" },
-      { src: "assets/nav/14.jpg", alt: "About" },
-    ];
+  const getSlides = () => Array.from(track.querySelectorAll(".mg__slide"));
 
-    const root = document.querySelector("[data-mg]");
-    if (!root) return;
+  function viewportCenterX() {
+    return viewport.getBoundingClientRect().width / 2;
+  }
 
-    const track = root.querySelector("[data-track]");
-    const viewport = root.querySelector("[data-viewport]");
-    const prevBtn = root.querySelector("[data-prev]");
-    const nextBtn = root.querySelector("[data-next]");
-    const dotsWrap = root.closest(".mini-gallery")?.querySelector("[data-dots]");
+  function physicalIndexFromScroll() {
+    const slides = getSlides();
+    if (!slides.length) return 0;
 
-    if (!track || !viewport || images.length < 2) return;
+    const center = viewport.scrollLeft + viewportCenterX();
 
-    const mod = (n, m) => ((n % m) + m) % m;
-    const prefersReduced = () =>
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let best = 0;
+    let bestDist = Infinity;
 
-    const SET = images.length;
-    const REPEAT = 5;
-    const CENTER_BASE = SET * Math.floor(REPEAT / 2);
-
-    let index = CENTER_BASE;
-    let slideW = 0;
-    let step = 0;
-    let baseCenterOffset = 0;
-    let biasX = 0;
-
-    let currentX = 0;
-    let isAnimating = false;
-    let pending = 0;
-
-    let dragging = false;
-    let dragStartX = 0;
-    let dragStartTranslate = 0;
-
-    // ----- DOM build
-    function buildSlides() {
-      track.innerHTML = "";
-      for (let r = 0; r < REPEAT; r++) {
-        for (let i = 0; i < SET; i++) {
-          const slide = document.createElement("div");
-          slide.className = "mg__slide";
-
-          const img = document.createElement("img");
-          img.src = images[i].src;
-          img.alt = images[i].alt || "";
-          img.loading = r === Math.floor(REPEAT / 2) && i === 0 ? "eager" : "lazy";
-          img.decoding = "async";
-          img.draggable = false;
-
-          slide.appendChild(img);
-          track.appendChild(slide);
-        }
+    for (let i = 0; i < slides.length; i++) {
+      const left = slides[i].offsetLeft;
+      const w = slides[i].getBoundingClientRect().width;
+      const c = left + w / 2;
+      const d = Math.abs(c - center);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
       }
     }
-    buildSlides();
+    return best;
+  }
 
-    // ----- Dots
-    const dots = images.map((_, i) => {
-      const b = document.createElement("button");
-      b.className = "mg__dot" + (i === 0 ? " is-active" : "");
-      b.type = "button";
-      b.setAttribute("aria-label", `Go to photo ${i + 1}`);
-      b.addEventListener("click", () => jumpToReal(i));
-      dotsWrap?.appendChild(b);
-      return b;
-    });
+  function logicalFromPhysical(p) {
+    // physical = BUFFER..BUFFER+SET-1 is the "real" region
+    return mod(p - BUFFER, SET);
+  }
 
-    function setActiveClasses() {
-      const slides = track.children;
-      const len = slides.length;
-      const real = mod(index, SET);
-      const target = CENTER_BASE + real;
+  // ---- dots (logical)
+  const dots = [];
+  if (dotsWrap) dotsWrap.innerHTML = "";
+  for (let i = 0; i < SET; i++) {
+    const b = document.createElement("button");
+    b.className = "mg__dot";
+    b.type = "button";
+    b.setAttribute("aria-label", `Go to photo ${i + 1}`);
+    b.addEventListener("click", () => scrollToLogical(i));
+    dotsWrap?.appendChild(b);
+    dots.push(b);
+  }
 
-      for (let k = 0; k < len; k++) slides[k].classList.remove("is-active");
-      if (slides[target]) slides[target].classList.add("is-active");
-    }
+  function setActivePhysical(p) {
+    const slides = getSlides();
+    slides.forEach((el) => el.classList.remove("is-active"));
+    if (slides[p]) slides[p].classList.add("is-active");
+  }
 
-    function setActiveForIndex(i) {
-      const slides = track.children;
-      const len = slides.length;
-      if (!Number.isFinite(i) || len === 0) return;
+  function setDotsForPhysical(p) {
+    const real = logicalFromPhysical(p);
+    dots.forEach((d, i) => d.classList.toggle("is-active", i === real));
+  }
 
-      const clamped = Math.max(0, Math.min(len - 1, i));
+  function scrollToPhysical(p, behavior = "smooth") {
+    const slides = getSlides();
+    const el = slides[p];
+    if (!el) return;
 
-      for (let k = 0; k < len; k++) slides[k].classList.remove("is-active");
-      slides[clamped].classList.add("is-active");
-    }
+    const w = el.getBoundingClientRect().width;
+    const left = el.offsetLeft;
+    const target = left - (viewportCenterX() - w / 2);
 
-    function setDots() {
-      const real = mod(index, SET);
-      dots.forEach((d, i) => d.classList.toggle("is-active", i === real));
-    }
+    viewport.scrollTo({ left: target, behavior });
+  }
 
-    // live dot update during wheel scroll
-    function setDotsWheel(wheelPos) {
-      if (!step) return;
-      const visual = index + Math.round(wheelPos / step);
-      const real = mod(visual, SET);
-      dots.forEach((d, i) => d.classList.toggle("is-active", i === real));
-    }
+  function scrollToLogical(i, behavior = "smooth") {
+    scrollToPhysical(i + BUFFER, behavior);
+  }
 
-    function computeStep() {
-      const slides = track.querySelectorAll(".mg__slide");
-      if (slides.length < 2) return 0;
+  function targetScrollLeftForPhysical(p) {
+    const slides = getSlides();
+    const el = slides[p];
+    if (!el) return viewport.scrollLeft;
 
-      const a = slides[0].getBoundingClientRect();
-      const b = slides[1].getBoundingClientRect();
-      const stepPx = b.left - a.left;
+    const w = el.getBoundingClientRect().width;
+    const left = el.offsetLeft;
+    return left - (viewportCenterX() - w / 2);
+  }
 
-      return Number.isFinite(stepPx) ? stepPx : 0;
-    }
 
-    function applyTransform(x) {
-      track.style.transform = `translate3d(${x}px, 0, 0)`;
-    }
+  // ---- infinite wrap jump
+  let jumping = false;
+  let settleT = 0;
+  const SCROLL_SETTLE_MS = 5;
+  let suppressActive = false;
 
-    function xForIndex(i) {
-      return baseCenterOffset + biasX - i * step;
-    }
+  function jumpIfNeeded() {
+    if (jumping) return;
 
-    function cancelAnim() {
-      isAnimating = false;
-    }
+    const p = physicalIndexFromScroll();
 
-    function setTrackTransition(enabled) {
-      track.style.transition = enabled
-        ? "transform 520ms cubic-bezier(.2,.8,.2,1)"
-        : "none";
-    }
+    let targetP = -1;
+    if (p < BUFFER) targetP = p + SET;               // left clones -> real
+    else if (p >= BUFFER + SET) targetP = p - SET;   // right clones -> real
+    else return;
 
-    function normalizeBias() {
-      if (!step || !Number.isFinite(step)) return;
+    jumping = true;
+    suppressActive = true;
+    viewport.classList.add("is-jumping");
 
-      const period = SET * step;
-      if (!Number.isFinite(period) || period === 0) return;
+    const targetLeft = targetScrollLeftForPhysical(targetP);
 
-      const k = Math.round(biasX / period);
-      if (k === 0) return;
+    // do the jump on the next frame to avoid mid-paint flicker
+    requestAnimationFrame(() => {
+      const prevBehavior = viewport.style.scrollBehavior;
+      viewport.style.scrollBehavior = "auto";
 
-      biasX -= k * period;
-      currentX += k * period;
+      viewport.scrollLeft = targetLeft; // direct assignment = least janky
 
-      setTrackTransition(false);
-      applyTransform(currentX);
-      setTrackTransition(true);
-    }
+      // restore behavior next frame
+      requestAnimationFrame(() => {
+        viewport.style.scrollBehavior = prevBehavior || "";
+        jumping = false;
+        suppressActive = false;
 
-    function clampIndexToMiddle() {
-      const real = mod(index, SET);
-      const newIndex = CENTER_BASE + real;
-      if (newIndex !== index) index = newIndex;
-    }
-
-    function measure() {
-      const first = track.querySelector(".mg__slide");
-      if (!first) return;
-
-      slideW = first.offsetWidth;
-      step = computeStep();
-      if (!slideW || !step) return;
-
-      const vpW = viewport.getBoundingClientRect().width;
-      baseCenterOffset = vpW / 2 - slideW / 2;
-
-      normalizeBias();
-      cancelAnim();
-
-      setTrackTransition(false);
-      currentX = xForIndex(index);
-      applyTransform(currentX);
-      setTrackTransition(true);
-
-      setActiveClasses();
-      setDots();
-    }
-
-    function animateToIndex(targetIndex, { doRebase = true } = {}) {
-      const targetX = xForIndex(targetIndex);
-
-      cancelAnim();
-
-      if (prefersReduced()) {
-        setTrackTransition(false);
-        index = targetIndex;
-        currentX = targetX;
-        applyTransform(currentX);
-        setActiveClasses();
-        setDots();
-        clampIndexToMiddle();
-        setActiveForIndex(index);
-        return Promise.resolve();
-      }
-
-      isAnimating = true;
-      setTrackTransition(true);
-
-      index = targetIndex;
-      currentX = targetX;
-      applyTransform(currentX);
-
-      setActiveForIndex(index);
-
-      return new Promise((resolve) => {
-        const onEnd = (e) => {
-          if (e.propertyName !== "transform") return;
-          track.removeEventListener("transitionend", onEnd);
-          isAnimating = false;
-
-          if (doRebase) clampIndexToMiddle();
-
-          setDots();
-
-          if (pending !== 0) {
-            const d = pending;
-            pending = 0;
-            moveBy(d);
-          }
-          resolve();
-        };
-        track.addEventListener("transitionend", onEnd);
+        // after jump, set active/dots based on the new stable position
+        setActivePhysical(targetP);
+        setDotsForPhysical(targetP);
+        viewport.classList.remove("is-jumping");
       });
-    }
+    });
+  }
 
-    function moveBy(delta) {
-      const d = Math.max(-SET, Math.min(SET, delta));
-      index += d;
+  // ---- arrows (wrap logically)
+  prevBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const p = physicalIndexFromScroll();
+    const logical = logicalFromPhysical(p);
 
-      setActiveClasses();
-      setDots();
+    if (logical === 0) scrollToPhysical(BUFFER - 1, "smooth");
+    else scrollToLogical(mod(logical - 1, SET));
+  });
 
-      return animateToIndex(index);
-    }
+  nextBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const p = physicalIndexFromScroll();
+    const logical = logicalFromPhysical(p);
 
-    function requestMove(delta) {
-      pending += delta;
-      if (isAnimating) return;
+    if (logical === SET - 1) scrollToPhysical(BUFFER + SET, "smooth");
+    else scrollToLogical(mod(logical + 1, SET));
+  });
 
-      const d = pending;
-      pending = 0;
-      moveBy(d);
-    }
+  // ---- drag
+  let dragging = false;
+  let startX = 0;
+  let startScroll = 0;
 
-    function jumpToReal(realIndex) {
-      cancelAnim();
-      pending = 0;
+  viewport.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button")) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
 
-      index = CENTER_BASE + realIndex;
-      currentX = xForIndex(index);
-      applyTransform(currentX);
+    dragging = true;
+    startX = e.clientX;
+    startScroll = viewport.scrollLeft;
 
-      setActiveClasses();
-      setDots();
-    }
+    viewport.setPointerCapture(e.pointerId);
+    viewport.style.scrollBehavior = "auto";
+    e.preventDefault();
+  });
 
-    prevBtn?.addEventListener("click", (e) => {
+  viewport.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    viewport.scrollLeft = startScroll - dx;
+    e.preventDefault();
+  });
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+
+    const p = physicalIndexFromScroll();
+    viewport.style.scrollBehavior = "";
+    scrollToPhysical(p, "smooth");
+  }
+
+  viewport.addEventListener("pointerup", endDrag);
+  viewport.addEventListener("pointercancel", endDrag);
+  viewport.addEventListener("lostpointercapture", endDrag);
+
+  // ---- wheel: vertical mouse wheel => horizontal scroll. Trackpad horizontal passes through.
+  viewport.addEventListener(
+    "wheel",
+    (e) => {
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+
+      if (absX > absY) return; // natural horizontal trackpad scroll
       e.preventDefault();
-      requestMove(-1);
-    });
+      viewport.scrollLeft += e.deltaY;
+    },
+    { passive: false }
+  );
 
-    nextBtn?.addEventListener("click", (e) => {
-      e.preventDefault();
-      requestMove(1);
-    });
+  // ---- keep active + dots synced
+  let rafDots = 0;
 
-    // ---- Drag / swipe
-    viewport.addEventListener("pointerdown", (e) => {
-      if (e.target.closest("button")) return;
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-
-      cancelAnim();
-      pending = 0;
-
-      dragging = true;
-      dragStartX = e.clientX;
-      dragStartTranslate = currentX;
-      setTrackTransition(false);
-
-      viewport.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    });
-
-    viewport.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - dragStartX;
-
-      currentX = dragStartTranslate + dx;
-      applyTransform(currentX);
-
-      e.preventDefault();
-    });
-
-    viewport.addEventListener("pointerup", (e) => {
-      if (!dragging) return;
-      dragging = false;
-
-      const dx = e.clientX - dragStartX;
-      const threshold = slideW * 0.18;
-
-      if (dx > threshold) index -= 1;
-      else if (dx < -threshold) index += 1;
-
-      setActiveClasses();
-      setDots();
-      setTrackTransition(true);
-
-      animateToIndex(index);
-      e.preventDefault();
-    });
-
-    viewport.addEventListener("pointercancel", () => {
-      if (!dragging) return;
-      dragging = false;
-      setTrackTransition(true);
-      animateToIndex(index);
-    });
-
-    viewport.addEventListener("lostpointercapture", () => {
-      if (!dragging) return;
-      dragging = false;
-      setTrackTransition(true);
-      animateToIndex(index);
-    });
-
-    // ---- Resize
-    const ro = new ResizeObserver(measure);
-    ro.observe(viewport);
-    requestAnimationFrame(measure);
-
-    // --- Trackpad / wheel support
-    let wheelTarget = 0;
-    let wheelPos = 0;
-    let wheelRAF = 0;
-    let wheelSettleT = 0;
-
-    const WHEEL_EASE = 0.18;
-    const WHEEL_SENS = 0.55;
-
-    function normalizeWheelPx(e) {
-      let dx = e.deltaX;
-      let dy = e.deltaY;
-
-      if (e.deltaMode === 1) {
-        dx *= 16;
-        dy *= 16;
-      } else if (e.deltaMode === 2) {
-        dx *= window.innerHeight;
-        dy *= window.innerHeight;
+  viewport.addEventListener(
+    "scroll",
+    () => {
+      // LIVE dots (fast)
+      if (!rafDots) {
+        rafDots = requestAnimationFrame(() => {
+          rafDots = 0;
+          const pNow = physicalIndexFromScroll();
+          setDotsForPhysical(pNow);
+        });
       }
 
-      dx = Math.max(-240, Math.min(240, dx));
-      dy = Math.max(-240, Math.min(240, dy));
+      // SETTLE: jump + active grow (no flicker)
+      clearTimeout(settleT);
+      settleT = setTimeout(() => {
+        jumpIfNeeded();
 
-      return { dx, dy };
-    }
+        if (!jumping) {
+          const p = physicalIndexFromScroll();
+          setActivePhysical(p);
+          setDotsForPhysical(p); // ensure dots match after jump
+        }
+      }, SCROLL_SETTLE_MS);
+    },
+    { passive: true }
+  );
 
-    function wheelTick() {
-      wheelRAF = 0;
+  // ---- initial: start at first REAL slide (physical BUFFER)
+  setActivePhysical(BUFFER);
+  requestAnimationFrame(() => scrollToPhysical(BUFFER, "auto"));
 
-      wheelPos += (wheelTarget - wheelPos) * WHEEL_EASE;
-      if (!step || !Number.isFinite(step)) return;
+  // ---- resize: keep centered + maintain infinite behavior
+  const ro = new ResizeObserver(() => {
+    const p = physicalIndexFromScroll();
+    scrollToPhysical(p, "auto");
 
-      const shift = Math.trunc(wheelPos / step);
-      if (shift !== 0) {
-        index += shift;
-        wheelPos -= shift * step;
-        wheelTarget -= shift * step;
-      }
-
-      currentX = baseCenterOffset - index * step - wheelPos;
-      applyTransform(currentX);
-
-      setActiveForIndex(index);
-      setDotsWheel(wheelPos);
-
-      if (Math.abs(wheelTarget - wheelPos) > 0.25) {
-        wheelRAF = requestAnimationFrame(wheelTick);
-      }
-    }
-
-    function settleWheel() {
-      if (wheelRAF) {
-        cancelAnimationFrame(wheelRAF);
-        wheelRAF = 0;
-      }
-
-      const move = Math.round(wheelPos / step);
-
-      wheelTarget = 0;
-      wheelPos = 0;
-
-      if (move !== 0) index += move;
-
-      animateToIndex(index, { doRebase: true });
-    }
-
-    function onWheel(e) {
-      setTrackTransition(false);
-      if (dragging) return;
-
-      const { dx, dy } = normalizeWheelPx(e);
-
-      const absX = Math.abs(dx);
-      const absY = Math.abs(dy);
-
-      const isMostlyHorizontal = absX > absY * 1.15;
-      const delta = isMostlyHorizontal ? dx : dy;
-
-      if (!isMostlyHorizontal && absY > 0 && absX < 4) return;
-      if (!step || !Number.isFinite(step)) return;
-
-      e.preventDefault();
-
-      cancelAnim();
-      pending = 0;
-
-      wheelTarget += delta * WHEEL_SENS;
-
-      if (!wheelRAF) wheelRAF = requestAnimationFrame(wheelTick);
-
-      clearTimeout(wheelSettleT);
-      wheelSettleT = setTimeout(settleWheel, 200);
-    }
-
-    viewport.addEventListener("wheel", onWheel, { passive: false });
-  })();
+    clearTimeout(settleT);
+    settleT = setTimeout(() => jumpIfNeeded(), SCROLL_SETTLE_MS);
+  });
+  ro.observe(viewport);
 });

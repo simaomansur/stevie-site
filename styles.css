@@ -256,15 +256,22 @@ body {
   max-height: calc(100svh - 360px);
 
   border-radius: 22px;
-  overflow: hidden;
   background: transparent;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
 
   isolation: isolate;
   contain: paint;
   transform: translateZ(0);
 
   touch-action: pan-y;
+  scroll-snap-type: x proximity;
 }
+
+.mg__viewport::-webkit-scrollbar { display: none; }  /* WebKit hide scrollbar */
 
 /* Sliding strip */
 .mg__track {
@@ -276,7 +283,8 @@ body {
   position: relative;
   backface-visibility: hidden;
   will-change: transform;
-  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: scale(0.98);
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 420ms ease;
 }
 
 /* Slide sizing (3 visible on desktop) */
@@ -289,6 +297,7 @@ body {
 
   opacity: 0.55;
   transform: none;
+  scroll-snap-align: center;
 }
 
 /* Image scaling */
@@ -306,11 +315,18 @@ body {
 }
 
 .mg__slide.is-active {
+  transform: scale(1.02);
   opacity: 1;
 }
 
 .mg__slide.is-active img {
   transform: scale(1.06);
+}
+
+/* Disable scale animation only while the JS is doing an invisible jump */
+.mg__viewport.is-jumping .mg__slide,
+.mg__viewport.is-jumping .mg__slide img {
+  transition: none !important;
 }
 
 /* Arrows */
