@@ -13,7 +13,7 @@ const categories = {
   events: {
     folder: "events",
     prefix: "events",
-    count: 17
+    count: 16
   },
   family: {
     folder: "family",
