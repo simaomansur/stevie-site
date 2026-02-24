@@ -121,7 +121,7 @@ body {
   );
 }
 
-/* HOME — Brand row (logo | divider | tagline) */
+/* HOME */
 .brand{
   display: flex;
   align-items: center;
@@ -239,7 +239,6 @@ body {
   position: relative;
   z-index: 20;
 
-  /* Hard stop: nothing in the carousel paints outside its region */
   overflow: hidden;
 }
 
@@ -271,7 +270,7 @@ body {
   scroll-snap-type: x proximity;
 }
 
-.mg__viewport::-webkit-scrollbar { display: none; }  /* WebKit hide scrollbar */
+.mg__viewport::-webkit-scrollbar { display: none; }
 
 /* Sliding strip */
 .mg__track {
@@ -287,7 +286,7 @@ body {
   transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 420ms ease;
 }
 
-/* Slide sizing (3 visible on desktop) */
+/* Slide sizing */
 .mg__slide {
   height: 100%;
   flex: 0 0 calc((100% - (var(--mg-gap, 18px) * 2)) / 3);
@@ -323,7 +322,6 @@ body {
   transform: scale(1.06);
 }
 
-/* Disable scale animation only while the JS is doing an invisible jump */
 .mg__viewport.is-jumping .mg__slide,
 .mg__viewport.is-jumping .mg__slide img {
   transition: none !important;
@@ -455,12 +453,12 @@ body {
   );
 }
 
-/* Bottom nav overlay (desktop only) */
+/* Bottom nav overlay */
 .bottom-nav {
   grid-column: 1 / -1;
   grid-row: 2;
 
-  position: relative; /* not absolute */
+  position: relative;
   left: auto;
   right: auto;
   bottom: auto;
@@ -612,7 +610,7 @@ body {
   display: block;
 }
 
-/* Horizontal scroll row (desktop) */
+/* Horizontal scroll row */
 .horizontal-scroll {
   display: flex;
   gap: 20px;
@@ -838,7 +836,7 @@ body {
    9) MOBILE (<= 900px)
    ========================================================= */
 @media (max-width: 900px) {
-  /* HOME: make the page scroll normally */
+  /* HOME */
   .layout {
     height: auto;
     overflow: visible;
@@ -846,7 +844,6 @@ body {
     grid-template-rows: auto auto auto;
   }
 
-  /* Hero on top */
   .left-hero {
     grid-column: 1;
     grid-row: 1;
@@ -857,26 +854,25 @@ body {
     min-height: 360px;
   }
 
-  .brand{
+  .brand {
     justify-content: center;
     gap: 12px;
   }
 
-  .brand__logo img{
-    height: clamp(100px, 12vw, 200px);
+  .brand__logo img {
+    height: clamp(96px, 18vw, 180px);
   }
 
-  .brand__divider{
+  .brand__divider {
     height: 34px;
   }
 
-  .brand__tagline{
-    font-size: 1rem;
+  .brand__tagline {
+    font-size: 0.98rem;
     letter-spacing: 0.03em;
     text-align: left;
   }
 
-  /* Content below hero */
   .right-content {
     grid-column: 1;
     grid-row: 2;
@@ -908,7 +904,6 @@ body {
     letter-spacing: 0.03em;
   }
 
-  /* Carousel: 1-up, stable sizing */
   .mini-gallery {
     max-width: 560px;
     margin: 18px auto 0;
@@ -919,15 +914,36 @@ body {
     aspect-ratio: 4 / 5;
     border-radius: 18px;
     max-height: none;
+
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+
+  .mg__track {
+    transform: none;
   }
 
   .mg__slide {
     flex: 0 0 100%;
-    opacity: 1;
+    scroll-snap-align: none;
+
+    opacity: 0.85;
   }
 
   .mg__slide img {
     transform: scale(1);
+  }
+
+  .mg__slide.is-active {
+    opacity: 1;
+  }
+
+  .mg__slide.is-active img {
+    transform: scale(1.03);
   }
 
   .mg__btn {
@@ -938,12 +954,20 @@ body {
   .mg__btn--prev { left: 10px; }
   .mg__btn--next { right: 10px; }
 
-  /* Fade off on mobile */
+  .mg__dots {
+    gap: 10px;
+    padding-top: 14px;
+  }
+
+  .mg__dot {
+    width: 10px;
+    height: 10px;
+  }
+
   .bottom-light-fade {
     display: none !important;
   }
 
-  /* Bottom nav becomes normal flow */
   .bottom-nav {
     grid-column: 1;
     grid-row: 3;
@@ -968,7 +992,6 @@ body {
     max-width: 560px;
   }
 
-  /* Shared top nav */
   .top-nav {
     flex-direction: column;
     align-items: center;
@@ -990,8 +1013,7 @@ body {
     font-size: 1.1rem;
   }
 
-  /* Gallery page: turn horizontal into vertical */
-  .gallery-tabs{
+  .gallery-tabs {
     display: flex;
     gap: 10px;
 
@@ -1000,12 +1022,12 @@ body {
     white-space: nowrap;
 
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;            /* key */
-    overscroll-behavior-x: contain; /* key */
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
     padding: 8px 2px 12px;
   }
 
-  .tab-btn{
+  .tab-btn {
     flex: 0 0 auto;
   }
 
