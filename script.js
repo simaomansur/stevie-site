@@ -214,12 +214,14 @@ document.addEventListener("DOMContentLoaded", () => {
     else scrollToLogical(mod(logical + 1, SET));
   });
 
-  // ---- drag
+  // ---- drag and touch
   let dragging = false;
   let startX = 0;
   let startScroll = 0;
+  let isTouching = false;
 
   viewport.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse") return;
     if (e.target.closest("button")) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
 
@@ -266,6 +268,26 @@ document.addEventListener("DOMContentLoaded", () => {
     { passive: false }
   );
 
+  viewport.addEventListener("touchstart", () => {
+    isTouching = true;
+    clearTimeout(settleT);
+  }, { passive: true });
+
+  viewport.addEventListener("touchend", () => {
+    isTouching = false;
+
+    clearTimeout(settleT);
+    settleT = setTimeout(() => {
+      const p = physicalIndexFromScroll();
+      setActivePhysical(p);
+      jumpIfNeeded();
+    }, SCROLL_SETTLE_MS);
+  }, { passive: true });
+
+  viewport.addEventListener("touchcancel", () => {
+    isTouching = false;
+  }, { passive: true });
+
   // ---- keep active + dots synced
   let rafDots = 0;
 
@@ -280,6 +302,8 @@ document.addEventListener("DOMContentLoaded", () => {
           setDotsForPhysical(pNow);
         });
       }
+
+      if (isTouching) return;
 
       // SETTLE: jump + active grow (no flicker)
       clearTimeout(settleT);
